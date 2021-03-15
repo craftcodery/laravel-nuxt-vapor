@@ -18,5 +18,6 @@ yarn-error.log
 /client/package-lock.json
 /client/yarn-error.log
 mix-manifest.json
+.idea/
 .vapor/
 .DS_Store
