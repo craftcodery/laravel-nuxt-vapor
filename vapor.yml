@@ -1,0 +1,53 @@
+id: your-project-id
+name: your-project-name
+environments:
+    production:
+        runtime: docker
+        domain: app.example.com
+        gateway-version: 2
+        database: your-database
+        storage: cdn.example.com
+        concurrency: 10
+        cli-concurrency: 5
+        queue-concurrency: 5
+        memory: 768
+        cli-memory: 1024
+        queue-memory: 768
+        warm: 5
+        timeout: 20
+        cli-timeout: 60
+        queue-timeout: 60
+        build:
+            - 'COMPOSER_MIRROR_PATH_REPOS=1 composer install --no-dev --ignore-platform-reqs --no-interaction'
+            - 'php artisan event:cache && php artisan view:cache'
+            - 'php vendor/bin/vapor env:pull production'
+            - 'rm .env && mv .env.production .env'
+            - 'cd client && yarn && yarn deploy:production'
+            - 'rm -r client/'
+        deploy:
+            - 'php artisan migrate --force'
+    staging:
+        runtime: docker
+        domain: app.example.dev
+        gateway-version: 2
+        database: your-staging-database
+        storage: cdn.example.dev
+        concurrency: 10
+        cli-concurrency: 5
+        queue-concurrency: 5
+        memory: 768
+        cli-memory: 1024
+        queue-memory: 768
+        warm: 5
+        timeout: 20
+        cli-timeout: 60
+        queue-timeout: 60
+        build:
+            - 'COMPOSER_MIRROR_PATH_REPOS=1 composer install --no-dev'
+            - 'php artisan event:cache && php artisan view:cache'
+            - 'php vendor/bin/vapor env:pull staging'
+            - 'rm .env && mv .env.staging .env'
+            - 'cd client && yarn && yarn deploy:staging'
+            - 'rm -r client/'
+        deploy:
+            - 'php artisan migrate --force'
