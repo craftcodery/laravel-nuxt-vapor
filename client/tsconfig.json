@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "target": "es2018",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "lib": [
+      "esnext",
+      "esnext.asynciterable",
+      "dom"
+    ],
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "strict": true,
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ],
+      "*": [
+        "node_modules/*",
+        "src/types/*"
+      ]
+    },
+    "typeRoots": [
+      "node_modules",
+      "src/types"
+    ],
+    "types": [
+      "@types/node",
+      "@nuxt/types",
+      "@nuxtjs/auth-next",
+      "@nuxtjs/axios",
+      "nuxt-i18n"
+    ]
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}

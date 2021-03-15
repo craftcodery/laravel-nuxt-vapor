@@ -1,0 +1,81 @@
+service: yourapp-client-${self:provider.stage}
+
+plugins:
+  - serverless-apigw-binary
+  - serverless-dotenv-plugin
+  - serverless-plugin-warmup
+  - serverless-prune-plugin
+  - serverless-s3-sync
+  - serverless-stage-manager
+
+provider:
+  name: aws
+  role: arn:aws:iam::your-aws-id:role/laravel-vapor-role
+  runtime: nodejs12.x
+  stage: ${opt:stage, self:custom.defaultStage}
+  region: us-east-1
+  endpointType: regional
+  apiName: yourapp-client-${self:provider.stage}
+  stackName: yourapp-client-${self:provider.stage}
+  timeout: 15
+  environment:
+    NODE_ENV: ${opt:environment, self:custom.defaultEnvironment}
+
+functions:
+  nuxt:
+    name: yourapp-client-${self:provider.stage}
+    handler: index.nuxt
+    memorySize: 768
+    reservedConcurrency: ${opt:concurrency, self:custom.defaultConcurrency}
+    events:
+      - http:
+          path: /
+          method: any
+      - http:
+          path: /{proxy+}
+          method: any
+      - http:
+          path: /_nuxt/{proxy+}
+          method: any
+          integration: http-proxy
+          request:
+            uri: https://${opt:bucket, self:custom.defaultBucket}/_nuxt/{proxy}
+            parameters:
+              paths:
+                proxy: true
+    vpc:
+      securityGroupIds:
+        - sg-your-vapor-sg
+      subnetIds:
+        - subnet-your-vapor-subnets
+        - subnet-your-vapor-subnets
+        - subnet-your-vapor-subnets
+        - subnet-your-vapor-subnets
+
+custom:
+  defaultBucket: cdn.example.dev
+  defaultConcurrency: 10
+  defaultEnvironment: production
+  defaultStage: staging
+  defaultWarm: 5
+  stages:
+    - staging
+    - production
+  apigwBinary:
+    types:
+      - '*/*'
+  s3Sync:
+    - bucketName: ${opt:bucket, self:custom.defaultBucket}
+      bucketPrefix: _nuxt/
+      localDir: .nuxt/dist/client
+  dotenv:
+    path: ../.env
+  prune:
+    automatic: true
+    number: 3
+  warmup:
+    default:
+      enabled: true
+      name: yourapp-client-${self:provider.stage}-warmup
+      prewarm: true
+      concurrency: ${opt:warm, self:custom.defaultWarm}
